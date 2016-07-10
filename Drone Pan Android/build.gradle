@@ -35,4 +35,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:22.2.1'
     compile(name:'dJISDKLIB', ext:'aar')
+    compile 'com.jakewharton.timber:timber:4.1.2'
 }

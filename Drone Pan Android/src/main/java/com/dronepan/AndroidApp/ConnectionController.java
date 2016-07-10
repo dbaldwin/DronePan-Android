@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import dji.sdk.Battery.DJIBattery;
 import dji.sdk.Camera.DJICamera;
@@ -19,9 +18,9 @@ import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
 import dji.sdk.base.DJIError;
 import dji.sdk.base.DJISDKError;
+import timber.log.Timber;
 
 public class ConnectionController {
-    private static final String TAG = ConnectionController.class.getName();
 
     private static DJIBaseProduct mProduct;
     protected String model = "";
@@ -65,7 +64,7 @@ public class ConnectionController {
 
         viewController = ctx;
 
-        Log.d(TAG, "STARTING SDK MANAGER");
+        Timber.d("STARTING SDK MANAGER");
         // INIT DJI SDK MANAGER
         DJISDKManager.getInstance().initSDKManager(ctx, mDJISDKMangerCallback);
     }
@@ -73,7 +72,7 @@ public class ConnectionController {
     // DJI SDK MANAGER CALLBACK
     private DJISDKManager.DJISDKManagerCallback mDJISDKMangerCallback = new DJISDKManager.DJISDKManagerCallback() {
         @Override public void onGetRegisteredResult(DJIError error) {
-            Log.d(TAG, "SDK Manger Registered Result  err: "+error.getDescription());
+            Timber.d("SDK Manger Registered Result  err:%s",error.getDescription());
 
             if(error == DJISDKError.REGISTRATION_SUCCESS) {
                 // START CONNECTION TO PRODUCT
@@ -83,7 +82,7 @@ public class ConnectionController {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d(TAG, "SUCCESS REGISTRATION SDK");
+                        Timber.d("SUCCESS REGISTRATION SDK");
                         delegate.sdkRegistered();
 
                     }
@@ -94,8 +93,7 @@ public class ConnectionController {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d("DronePan", "ERROR REGISTRATION SDK");
-
+                        Timber.d("ERROR REGISTRATION SDK");
                     }
                 });
             }

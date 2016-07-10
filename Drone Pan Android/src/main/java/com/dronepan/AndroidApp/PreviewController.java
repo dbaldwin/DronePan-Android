@@ -2,14 +2,13 @@ package com.dronepan.AndroidApp;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
-import android.util.Log;
 import android.view.TextureView;
 
 import dji.sdk.Camera.DJICamera;
 import dji.sdk.Codec.DJICodecManager;
+import timber.log.Timber;
 
 public class PreviewController implements TextureView.SurfaceTextureListener {
-    private static final String TAG = PreviewController.class.getName();
 
     protected TextureView mVideoSurface = null;
     protected Context mainCtx = null;
@@ -33,7 +32,7 @@ public class PreviewController implements TextureView.SurfaceTextureListener {
                     mCodecManager.sendDataToDecoder(videoBuffer, size);
                 }
                 else {
-                    Log.e(TAG, "ERROR CREATING CODEC MANAGER");
+                    Timber.e("ERROR CREATING CODEC MANAGER");
                 }
             }
         };

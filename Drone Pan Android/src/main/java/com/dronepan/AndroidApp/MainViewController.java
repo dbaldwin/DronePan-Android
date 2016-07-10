@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.os.Bundle;
 import android.view.TextureView;
 import android.view.View;
@@ -29,9 +28,10 @@ import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIBaseProduct;
 import dji.sdk.base.DJIError;
 
-public class MainViewController extends Activity implements View.OnClickListener, ConnectionController.ConnectionControllerInterface, PanoramaController.PanoramaControllerInterface, CameraController.CameraControllerInterface, BatteryController.BatteryControllerInterface {
-    private static final String TAG = MainViewController.class.getName();
+import timber.log.Timber;
 
+public class MainViewController extends Activity implements View.OnClickListener, ConnectionController.ConnectionControllerInterface, PanoramaController.PanoramaControllerInterface, CameraController.CameraControllerInterface, BatteryController.BatteryControllerInterface {
+    
     public static final String FLAG_CONNECTION_CHANGE = "dji_sdk_connection_change";
 
     private DJIBaseProduct mProduct;
@@ -99,14 +99,13 @@ public class MainViewController extends Activity implements View.OnClickListener
     protected BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            //Log.d(TAG, "BORADCASST RECEIVED");
+            Timber.d("BROADCAST RECEIVED");
             /*DJIBaseProduct product = connectionController.;
             if(product != null && product.getModel() != null) {
                 showToast("CONNECTED TO ");
             }*/
 
             showToast("CONNECTION CHANGED");
-
         }
 
     };
@@ -195,12 +194,12 @@ public class MainViewController extends Activity implements View.OnClickListener
     // CONNECTION CONTROLLER INTERFACE
     //
     public void sdkRegistered() {
-        Log.d(TAG, "SDK REGISTERED");
+        Timber.d("SDK REGISTERED");
         showToast("SDK REGISTERED");
     }
 
     public void failedToRegister(String reason) {
-        Log.e(TAG, "FAILED TO REGISTER SDK : " + reason);
+        Timber.e("FAILED TO REGISTER SDK : %s", reason);
     }
 
     public void connectedToProduct(DJIBaseProduct product) {

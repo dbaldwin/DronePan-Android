@@ -17,7 +17,6 @@ import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIError;
 
 public class PanoramaController {
-    private static final String TAG = PanoramaController.class.getName();
 
     interface PanoramaControllerInterface {
         void postUserMessage(String message);
