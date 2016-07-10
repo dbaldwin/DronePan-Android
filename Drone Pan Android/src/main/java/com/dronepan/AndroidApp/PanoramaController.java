@@ -8,13 +8,12 @@ import dji.sdk.MissionManager.DJICustomMission;
 import dji.sdk.MissionManager.DJIMission;
 import dji.sdk.MissionManager.DJIMissionManager;
 import dji.sdk.MissionManager.MissionStep.DJIGimbalAttitudeStep;
-import dji.sdk.MissionManager.MissionStep.DJIGoToStep;
 import dji.sdk.MissionManager.MissionStep.DJIMissionStep;
 import dji.sdk.MissionManager.MissionStep.DJIShootPhotoStep;
 import dji.sdk.MissionManager.MissionStep.DJIAircraftYawStep;
-import dji.sdk.MissionManager.MissionStep.DJITakeoffStep;
 import dji.sdk.base.DJIBaseComponent;
 import dji.sdk.base.DJIError;
+import timber.log.Timber;
 
 public class PanoramaController {
 
@@ -38,8 +37,6 @@ public class PanoramaController {
 
     private MainViewController mContext = null;
 
-    private CameraController mCameraController;
-    private DJIMissionManager mDJIMissionManager;
     private DJIMission mDJIMission;
 
     private float lastGimbalPtich = 0.0f;
@@ -62,7 +59,7 @@ public class PanoramaController {
 
     // START PANORAMA
     public void start() {
-
+        Timber.i("Starting Pano");
         if (!checkProduct()) {
             return;
         }
@@ -91,9 +88,6 @@ public class PanoramaController {
             return;
         }
 
-        isRunningState = true;
-        isRunningOK = true;
-
         // PANORAMA STARTING
         doPanoLoop();
 
@@ -101,17 +95,20 @@ public class PanoramaController {
 
     // DO PANO LOOP
     protected void doPanoLoop() {
+        Timber.i("Checks passed - starting panoloop");
         /*int currentCount = 0;
 
         DJIMissionManager missionManager = DJIMissionManager.getInstance();
 
         if (missionManager == null) {
+            Timber.e("MissionManager instance is null");
             delegate.postUserMessage("Error: Could not get mission manager instance");
             return;
         }
 
         mDJIMission = createCustomMission();
         if (mDJIMission == null) {
+            Timber.e("Created null mission");
             delegate.postUserMessage("Please choose a mission type");
             //Utils.setResultToToast(mContext, "Please choose a mission type...");
         }
@@ -119,8 +116,9 @@ public class PanoramaController {
         missionManager.prepareMission(mDJIMission, new DJIMission.DJIMissionProgressHandler() {
 
             @Override
-            public void onProgress(DJIMission.DJIProgressType type, float progress) {
+            public void onProgress(DJIMission.DJIProgressType progressType, float missionProgress) {
                 //setProgressBar((int)(progress * 100f));
+                Timber.i("Mission Progress (%s) (%d)", progressType.toString(), missionProgress);
             }
 
         }, new DJIBaseComponent.DJICompletionCallback() {
@@ -130,11 +128,12 @@ public class PanoramaController {
             public void onResult(DJIError error) {
                 if (error == null) {
                     //Utils.setResultToToast(mContext, "Success!");
-
+                    Timber.i("Mission prepared");
                     delegate.postUserMessage("Success preparing mission");
 
                     startMission();
                 } else {
+                    Timber.e("Mission failed to prepare: %s", error.getDescription());
                     delegate.postUserMessage("Error preparing mission " + error.getDescription());
                 }
             }
@@ -224,6 +223,7 @@ public class PanoramaController {
     }
 
     protected void startMission() {
+        Timber.i("Starting mission");
         //delegate.postUserMessage("STARTING MISSION");
 
         DJIMissionManager missionManager = DJIMissionManager.getInstance();
@@ -233,9 +233,9 @@ public class PanoramaController {
 
                 @Override
                 public void onResult(DJIError error) {
-
                     if(error == null) {
                         //delegate.postUserMessage("Mission executing OK");
+                        Timber.i("Mission Execution finished without error.");
 
                         if(curretMissions.isEmpty()) {
                             delegate.postUserMessage("PANORAMA CAPTURED OK");
@@ -244,6 +244,8 @@ public class PanoramaController {
                             // EXECUTE NEXT MISSION
                             executeNextMission();
                         }
+                    } else {
+                        Timber.i("Mission Execution finished with error :%s", error.getDescription());
                     }
 
                 }
@@ -257,10 +259,10 @@ public class PanoramaController {
                 public void onResult(DJIError mError) {
 
                     if (mError == null) {
-
+                        Timber.i("Mission execution success!");
                         //delegate.postUserMessage("SUCCESS EXECUTING MISSION");
-
                     } else {
+                        Timber.e("Error in mission execution: %s", mError.getDescription());
                         delegate.postUserMessage("Error mission execution: " + mError.getDescription());
                     }
                 }
@@ -332,6 +334,7 @@ public class PanoramaController {
                     @Override
                     public void onResult(DJIError error) {
                         //delegate.postUserMessage("RESET GIMBAL: " + DJIGimbal.DJIGimbalRotateDirection.Clockwise + " " + (error == null ? "Success" : error.getDescription()));
+                        Timber.d("Finished setting gimbal attitude. (%s)", (error == null ? "success" : error.getDescription()));
                     }
 
                 }));
@@ -341,15 +344,12 @@ public class PanoramaController {
             @Override
             public void onResult(DJIError error) {
                 //Utils.setResultToToast(mContext, "Take single photo step: " + (error == null ? "Success" : error.getDescription()));
+                Timber.d("Last photo completed.");
                 delegate.postUserMessage("PANORAMA SUCCESS");
             }
         }));
 
-
-
-        DJICustomMission customMission = new DJICustomMission(steps);
-
-        return customMission;
+        return new DJICustomMission(steps);
     }
 
     protected void createRowStep(LinkedList<DJIMissionStep> steps) {
@@ -364,7 +364,7 @@ public class PanoramaController {
                 new DJIBaseComponent.DJICompletionCallback() {
                     @Override
                     public void onResult(DJIError error) {
-                        //delegate.postUserMessage("RESET GIMBAL: " + DJIGimbal.DJIGimbalRotateDirection.Clockwise + " " + (error == null ? "Success" : error.getDescription()));
+                        Timber.d("RESET GIMBAL: " + DJIGimbal.DJIGimbalRotateDirection.Clockwise + " " + (error == null ? "Success" : error.getDescription()));
                     }
 
                 }));
@@ -373,7 +373,7 @@ public class PanoramaController {
         steps.add(new DJIShootPhotoStep(new DJIBaseComponent.DJICompletionCallback() {
             @Override
             public void onResult(DJIError error) {
-                //Utils.setResultToToast(mContext, "Take single photo step: " + (error == null ? "Success" : error.getDescription()));
+                Timber.d("Take single photo step: " + (error == null ? "Success" : error.getDescription()));
                 //delegate.postUserMessage("SHOOT PHOTO STEP");
             }
         }));
@@ -390,7 +390,7 @@ public class PanoramaController {
                 new DJIBaseComponent.DJICompletionCallback() {
                     @Override
                     public void onResult(DJIError error) {
-                        //delegate.postUserMessage("RESET GIMBAL: " + DJIGimbal.DJIGimbalRotateDirection.Clockwise + " " + (error == null ? "Success" : error.getDescription()));
+                        Timber.d("RESET GIMBAL: " + DJIGimbal.DJIGimbalRotateDirection.Clockwise + " " + (error == null ? "Success" : error.getDescription()));
                     }
 
                 }));
@@ -399,7 +399,7 @@ public class PanoramaController {
         steps.add(new DJIShootPhotoStep(new DJIBaseComponent.DJICompletionCallback() {
             @Override
             public void onResult(DJIError error) {
-                //Utils.setResultToToast(mContext, "Take single photo step: " + (error == null ? "Success" : error.getDescription()));
+                Timber.d("Take single photo step: " + (error == null ? "Success" : error.getDescription()));
                 //delegate.postUserMessage("SHOOT PHOTO STEP");
             }
         }));
@@ -416,7 +416,7 @@ public class PanoramaController {
                 new DJIBaseComponent.DJICompletionCallback() {
                     @Override
                     public void onResult(DJIError error) {
-                        //delegate.postUserMessage("RESET GIMBAL: " + DJIGimbal.DJIGimbalRotateDirection.Clockwise + " " + (error == null ? "Success" : error.getDescription()));
+                        Timber.d("RESET GIMBAL: " + DJIGimbal.DJIGimbalRotateDirection.Clockwise + " " + (error == null ? "Success" : error.getDescription()));
                     }
 
                 }));
@@ -425,7 +425,7 @@ public class PanoramaController {
         steps.add(new DJIShootPhotoStep(new DJIBaseComponent.DJICompletionCallback() {
             @Override
             public void onResult(DJIError error) {
-                //Utils.setResultToToast(mContext, "Take single photo step: " + (error == null ? "Success" : error.getDescription()));
+                Timber.d("Take single photo step: " + (error == null ? "Success" : error.getDescription()));
                 delegate.postUserMessage("LAST PANORAMA SHOOT PHOTO STEP");
             }
         }));
@@ -436,8 +436,7 @@ public class PanoramaController {
         steps.add(new DJIAircraftYawStep(60.0f, 10.0f, new DJIBaseComponent.DJICompletionCallback() {
             @Override
             public void onResult(DJIError error) {
-                //Utils.setResultToToast(mContext, "Take single photo step: " + (error == null ? "Success" : error.getDescription()));
-                delegate.postUserMessage("AIRCRAFT YAW STEP");
+                Timber.d("AIRCRAFT YAW STEP");
             }
         }));
 

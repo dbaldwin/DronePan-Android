@@ -37,27 +37,24 @@ public class ConnectionController {
 
     // INTERFACE METHODS
     interface ConnectionControllerInterface {
-        public void sdkRegistered();
-        public void failedToRegister(String reason);
-        public void connectedToProduct(DJIBaseProduct product);
-        public void disconnected();
-        public void connectedToBattery(DJIBattery battery);
-        public void connectedToCamera(DJICamera camera);
-        public void connectedToGimbal(DJIGimbal gimbal);
-        public void connectedToRemoteController(DJIRemoteController rc);
-        public void connectedToFlightController(DJIFlightController flightController);
-        public void disconnectedFromBattery();
-        public void disconnectedFromCamera();
-        public void disconnectedFromGimbal();
-        public void disconnectedFromRemote();
-        public void disconnectedFromFlightController();
+        void sdkRegistered();
+        void failedToRegister(String reason);
+        void connectedToProduct(DJIBaseProduct product);
+        void disconnected();
+        void connectedToBattery(DJIBattery battery);
+        void connectedToCamera(DJICamera camera);
+        void connectedToGimbal(DJIGimbal gimbal);
+        void connectedToRemoteController(DJIRemoteController rc);
+        void connectedToFlightController(DJIFlightController flightController);
+        void disconnectedFromBattery();
+        void disconnectedFromCamera();
+        void disconnectedFromGimbal();
+        void disconnectedFromRemote();
+        void disconnectedFromFlightController();
     }
 
     public ConnectionControllerInterface delegate = null;
 
-    public void ConnectionController() {
-
-    }
 
     public void start(MainViewController ctx) {
         mHandler = new Handler(Looper.getMainLooper());

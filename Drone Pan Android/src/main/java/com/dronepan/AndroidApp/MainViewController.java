@@ -29,7 +29,6 @@ import dji.sdk.base.DJIBaseProduct;
 import dji.sdk.base.DJIError;
 
 import timber.log.Timber;
-
 public class MainViewController extends Activity implements View.OnClickListener, ConnectionController.ConnectionControllerInterface, PanoramaController.PanoramaControllerInterface, CameraController.CameraControllerInterface, BatteryController.BatteryControllerInterface {
     
     public static final String FLAG_CONNECTION_CHANGE = "dji_sdk_connection_change";
@@ -126,12 +125,6 @@ public class MainViewController extends Activity implements View.OnClickListener
         mSwapAEBMode.setOnClickListener(this);
     }
 
-    public void setTitleBar(String text) {
-        if(mConnectStatusTextView == null) return;
-
-        mConnectStatusTextView.setText(text);
-    }
-
     // SHOW TOASTER
     public void showToast(final String msg) {
         runOnUiThread(new Runnable() {
@@ -159,11 +152,7 @@ public class MainViewController extends Activity implements View.OnClickListener
         super.onPause();
     }
 
-    // ON STOP
-    @Override public void onStop() {
-        super.onStop();
 
-    }
 
     // ON RETURN
     public void onReturn(View view) {
@@ -221,10 +210,12 @@ public class MainViewController extends Activity implements View.OnClickListener
     }
 
     public void disconnected() {
+        Timber.i("Disconnected");
         showToast("DISCONNECTED!");
     }
 
     public void connectedToBattery(DJIBattery battery) {
+        Timber.d("Connected to Battery (%s)", battery.isConnected());
         showToast("CONNECTED TO BATTERY");
         batteryController.init(battery);
     }
@@ -246,15 +237,20 @@ public class MainViewController extends Activity implements View.OnClickListener
         }
     }
 
-    public void connectedToGimbal(DJIGimbal gimbal) {
-
+    public void connectedToGimbal(@NonNull DJIGimbal gimbal) {
+        Timber.d("connected to Gimbal (%s)", gimbal.isConnected());
+        for (DJIGimbal.DJIGimbalCapabilityKey k : gimbal.gimbalCapability.keySet()) {
+            DJIParamCapability v = gimbal.gimbalCapability.get(k);
+            Timber.i("Gimbal Capability %s: %s", k.toString(), v.isSuppported());
+        }
     }
 
-    public void connectedToRemoteController(DJIRemoteController rc) {
-
+    public void connectedToRemoteController(@NonNull DJIRemoteController rc) {
+        Timber.i("connected to remote controller (%s)", rc.isConnected());
     }
 
-    public void connectedToFlightController(DJIFlightController fc) {
+    public void connectedToFlightController(@NonNull DJIFlightController fc) {
+        Timber.i("connected to FlightController (%s)", fc.isConnected());
         if(flightController == null) {
             flightController = new FlightController();
             flightController.init(fc);
@@ -262,23 +258,23 @@ public class MainViewController extends Activity implements View.OnClickListener
     }
 
     public void disconnectedFromBattery() {
-
+        Timber.d("disconnected from Battery");
     }
 
     public void disconnectedFromCamera() {
-
+        Timber.d("disconnected from camera");
     }
 
     public void disconnectedFromGimbal() {
-
+        Timber.d("disconnected from gimbal");
     }
 
     public void disconnectedFromRemote() {
-
+        Timber.d("disconnected from remote");
     }
 
     public void disconnectedFromFlightController() {
-
+        Timber.d("disconnected from flight controller");
     }
 
     //
@@ -297,7 +293,7 @@ public class MainViewController extends Activity implements View.OnClickListener
     }
 
     public void postUserWarning(String warning) {
-
+        postUserMessage(warning);
     }
 
     public void panoStarting() {
@@ -395,19 +391,5 @@ public class MainViewController extends Activity implements View.OnClickListener
                 break;
         }
     }
-
-    private void notifyStatusChange() {
-        mHandler.removeCallbacks(updateRunnable);
-        mHandler.postDelayed(updateRunnable, 500);
-    }
-
-    private Runnable updateRunnable = new Runnable() {
-        @Override
-        public void run() {
-            //Intent intent = new Intent(FLAG_CONNECTION_CHANGE);
-            //PanoramaController.getInstance().getMainContext().sendBroadcast(intent);
-        }
-    };
-
 
 }
